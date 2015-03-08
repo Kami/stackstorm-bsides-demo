@@ -1,0 +1,28 @@
+---
+  chain:
+    -
+      name: "retrieve_server_id"
+      ref: "rackspace.get_vm_by_ip"
+      params:
+        ip_address: "{{ ip_address }}"
+      publish:
+        vm_id: "{{ retrieve_server_id.result.id }}"
+      on-success: "update_server_metadata"
+    -
+      name: "update_server_metadata"
+      ref: "rackspace.set_vm_metadata"
+      params:
+        vm_id: "{{ vm_id }}"
+        metadata:
+          lockdown_status: "true"
+          lockdown_reason: "potential breach"
+          lockdown_who: "stackstorm"
+      on-success: "firewall_server"
+    -
+      name: "firewall_server"
+      ref: "core.remote_sudo"
+      params:
+        hosts: "{{ ip_address }}"
+        cmd: "iptables -P INPUT DROP ; {% for ip_address in firewall_whitelist %}iptables -A INPUT -p tcp -s {{ ip_address }} -j ACCEPT;{% endfor %}"
+
+  default: "retrieve_server_id"

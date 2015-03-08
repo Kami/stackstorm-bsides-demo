@@ -1,0 +1,17 @@
+---
+  name: "lockdown"
+  runner_type: "action-chain"
+  description: "Put specified server in a lock-down mode"
+  enabled: true
+  entry_point: "workflows/lockdown.yaml"
+  parameters:
+    ip_address:
+      type: "string"
+      description: "IP address of a remote server to put in a lockdown mode"
+      required: true
+      default: "23.253.53.4"
+    firewall_whitelist:
+      type: "array"
+      description: "List of IP addresses which should still be allowed to access the server"
+      required: true
+      default: ["188.230.143.129/32"]
