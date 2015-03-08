@@ -23,7 +23,7 @@
       ref: "core.remote_sudo"
       params:
         hosts: "{{ ip_address }}"
-        cmd: "lsof -i| grep LISTEN > \"{{temp_dir}}/open_ports.txt\""
+        cmd: "lsof -i -n | grep LISTEN > \"{{temp_dir}}/open_ports.txt\""
       on-success: "retrieve_established_connections"
       on-failure: "cleanup"
     -
@@ -31,7 +31,7 @@
       ref: "core.remote_sudo"
       params:
         hosts: "{{ ip_address }}"
-        cmd: "lsof -i| grep LISTEN > \"{{temp_dir}}/established_connections.txt\""
+        cmd: "lsof -i -n | grep LISTEN > \"{{temp_dir}}/established_connections.txt\""
       on-success: "retrieve_running_processes"
       on-failure: "cleanup"
     -
