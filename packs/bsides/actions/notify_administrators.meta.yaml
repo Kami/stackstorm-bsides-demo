@@ -1,0 +1,22 @@
+---
+  name: "notify_administrators"
+  runner_type: "action-chain"
+  description: "Notify administrators about a potential breach, include contextual information"
+  enabled: true
+  entry_point: "workflows/notify_administrators.yaml"
+  parameters:
+    ip_address:
+      type: "string"
+      description: "IP address of a remote server where a breach has been detected"
+      required: true
+      default: "23.253.53.4"
+    slack_channel:
+      type: "string"
+      description: "Slack channel where the notification is sent to"
+      required: true
+      default: "#bsidesdemo"
+    email_address:
+      type: "string"
+      description: "Email address where the notification is sent to"
+      required: true
+      default: "tomaz@tomaz.me"
