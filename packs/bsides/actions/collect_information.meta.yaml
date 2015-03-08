@@ -1,9 +1,9 @@
 ---
-  name: "information_collection"
+  name: "collect_information"
   runner_type: "action-chain"
   description: "Collect forensic information from a remote server"
   enabled: true
-  entry_point: "workflows/information_collection.yaml"
+  entry_point: "workflows/collect_information.yaml"
   parameters:
     ip_address:
       type: "string"
