@@ -1,0 +1,17 @@
+---
+  name: "information_collection"
+  runner_type: "action-chain"
+  description: "Collect forensic information from a remote server"
+  enabled: true
+  entry_point: "workflows/information_collection.yaml"
+  parameters:
+    ip_address:
+      type: "string"
+      description: "IP address of a remote server to collect the informatiom from"
+      required: true
+      default: "23.253.53.4"
+    container_name:
+      type: "string"
+      description: "Name of the container where the tarball with forensic information is uploaded"
+      required: true
+      default: "bsides_demo"

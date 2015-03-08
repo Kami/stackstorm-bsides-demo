@@ -1,0 +1,105 @@
+---
+  chain:
+    -
+      name: "create_temporary_directory"
+      ref: "core.remote_sudo"
+      params:
+        hosts: "{{ ip_address }}"
+        cmd: "mktemp -d"
+      publish:
+        temp_dir: "{{ create_temporary_directory[parameters.ip_address].stdout }}"
+      on-success: "retrieve_logged_users"
+      on-failure: "cleanup"
+    -
+      name: "retrieve_logged_users"
+      ref: "core.remote_sudo"
+      params:
+        hosts: "{{ ip_address }}"
+        cmd: "who > \"{{temp_dir}}/logged_users.txt\""
+      on-success: "retrieve_open_ports"
+      on-failure: "cleanup"
+    -
+      name: "retrieve_open_ports"
+      ref: "core.remote_sudo"
+      params:
+        hosts: "{{ ip_address }}"
+        cmd: "lsof -i| grep LISTEN > \"{{temp_dir}}/open_ports.txt\""
+      on-success: "retrieve_established_connections"
+      on-failure: "cleanup"
+    -
+      name: "retrieve_established_connections"
+      ref: "core.remote_sudo"
+      params:
+        hosts: "{{ ip_address }}"
+        cmd: "lsof -i| grep LISTEN > \"{{temp_dir}}/established_connections.txt\""
+      on-success: "retrieve_running_processes"
+      on-failure: "cleanup"
+    -
+      name: "retrieve_running_processes"
+      ref: "core.remote_sudo"
+      params:
+        hosts: "{{ ip_address }}"
+        cmd: "ps aux > \"{{temp_dir}}/running_processes.txt\""
+      on-success: "retrieve_file_hashes"
+      on-failure: "cleanup"
+    -
+      name: "retrieve_file_hashes"
+      ref: "core.remote_sudo"
+      params:
+        hosts: "{{ ip_address }}"
+        cmd: "find /etc -type f -print0 | xargs -0 md5sum > \"{{temp_dir}}/file_hashes.txt\""
+      on-success: "retrieve_logs"
+      on-failure: "cleanup"
+    -
+      name: "retrieve_logs"
+      ref: "core.remote_sudo"
+      params:
+        hosts: "{{ ip_address }}"
+        cmd: "mkdir -p {{ temp_dir }}/logs ; cp -R /var/log/auth.log {{ temp_dir }}/logs/"
+      on-success: "get_timestamp"
+      on-failure: "cleanup"
+    -
+      name: "get_timestamp"
+      ref: "core.remote_sudo"
+      params:
+        hosts: "{{ ip_address }}"
+        cmd: "echo `date +%s`"
+      publish:
+        archive_name: "forensic-logs-{{ get_timestamp[parameters.ip_address].stdout }}.tar.gz"
+        archive_path: "/tmp/forensic-logs-{{ get_timestamp[parameters.ip_address].stdout }}.tar.gz"
+      on-success: "create_archive"
+      on-failure: "cleanup"
+    -
+      name: "create_archive"
+      ref: "core.remote_sudo"
+      params:
+        hosts: "{{ ip_address }}"
+        cwd: "{{ temp_dir }}"
+        cmd: "tar --transform='s/\\./data/' -cvzpf \"{{ archive_path }}\" ."
+      on-success: "download_archive"
+      on-failure: "cleanup"
+    -
+      name: "download_archive"
+      ref: "core.local_sudo"
+      params:
+        cmd: "scp -o stricthostkeychecking=no -i /home/vagrant/.ssh/stanley_rsa stanley@{{ ip_address }}:{{ archive_path }} /tmp/"
+      on-success: "upload_archive"
+      on-failure: "cleanup"
+    -
+      name: "upload_archive"
+      ref: "libcloud.upload_file"
+      params:
+        credentials: "rax_storage_kamislo_ord"
+        file_path: "/tmp/{{ archive_name }}"
+        container_name: "{{ container_name }}"
+        object_name: "{{ archive_name }}"
+      on-success: "cleanup"
+      on-failure: "cleanup"
+    -
+      name: "cleanup"
+      ref: "core.remote_sudo"
+      params:
+        hosts: "{{ ip_address }}"
+        cmd: "rm -rf {{ temp_dir }} ; rm -f {{ archive_path }}"
+
+  default: "create_temporary_directory"
