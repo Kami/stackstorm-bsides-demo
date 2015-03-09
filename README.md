@@ -2,6 +2,14 @@
 
 Actions and workflows used in my StackStorm BSides Ljubljana 2015 presentation.
 
+Used packs:
+
+* core
+* linux
+* libcloud
+* rackspace
+* mailgun
+
 ## Workflows
 
 ### collect_information
