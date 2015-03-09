@@ -16,14 +16,22 @@
       params:
         hosts: "{{ ip_address }}"
         cmd: "who > \"{{temp_dir}}/logged_users.txt\""
-      on-success: "retrieve_open_ports"
+      on-success: "retrieve_open_files"
       on-failure: "cleanup"
     -
-      name: "retrieve_open_ports"
+      name: "retrieve_open_files"
       ref: "core.remote_sudo"
       params:
         hosts: "{{ ip_address }}"
-        cmd: "lsof -i -n | grep LISTEN > \"{{temp_dir}}/open_ports.txt\""
+        cmd: "lsof > \"{{temp_dir}}/open_files.txt\""
+      on-success: "retrieve_listening_ports"
+      on-failure: "cleanup"
+    -
+      name: "retrieve_listening_ports"
+      ref: "core.remote_sudo"
+      params:
+        hosts: "{{ ip_address }}"
+        cmd: "lsof -i -n | grep LISTEN > \"{{temp_dir}}/listening_ports.txt\""
       on-success: "retrieve_established_connections"
       on-failure: "cleanup"
     -
