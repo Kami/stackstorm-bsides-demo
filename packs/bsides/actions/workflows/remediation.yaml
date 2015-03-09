@@ -1,0 +1,21 @@
+---
+  chain:
+    -
+      name: "collect_information"
+      ref: "bsides.collect_information"
+      params:
+        ip_address: "{{ ip_address }}"
+      on-success: "lockdown"
+    -
+      name: "lockdown"
+      ref: "bsides.lockdown"
+      params:
+        ip_address: "{{ ip_address }}"
+      on-success: "notify_administrators"
+    -
+      name: "notify_administrators"
+      ref: "bsides.notify_administrators"
+      params:
+        ip_address: "{{ ip_address }}"
+
+  default: "collect_information"

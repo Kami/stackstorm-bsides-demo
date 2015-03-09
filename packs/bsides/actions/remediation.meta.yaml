@@ -1,0 +1,12 @@
+---
+  name: "remediation"
+  runner_type: "action-chain"
+  description: "Remediation workflow for a server where a potential breach has been detected"
+  enabled: true
+  entry_point: "workflows/remediation.yaml"
+  parameters:
+    ip_address:
+      type: "string"
+      description: "IP address of a remote server to start the remediation for"
+      required: true
+      default: "23.253.53.4"
