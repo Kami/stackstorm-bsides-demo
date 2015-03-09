@@ -7,7 +7,7 @@
         hosts: "{{ ip_address }}"
         cmd: "mktemp -d"
       publish:
-        temp_dir: "{{ create_temporary_directory[parameters.ip_address].stdout }}"
+        temp_dir: "{{ create_temporary_directory[ip_address].stdout }}"
       on-success: "retrieve_logged_users"
       on-failure: "cleanup"
     -
@@ -65,8 +65,8 @@
         hosts: "{{ ip_address }}"
         cmd: "echo `date +%s`"
       publish:
-        archive_name: "forensic-logs-{{ get_timestamp[parameters.ip_address].stdout }}.tar.gz"
-        archive_path: "/tmp/forensic-logs-{{ get_timestamp[parameters.ip_address].stdout }}.tar.gz"
+        archive_name: "forensic-logs-{{ get_timestamp[ip_address].stdout }}.tar.gz"
+        archive_path: "/tmp/forensic-logs-{{ get_timestamp[ip_address].stdout }}.tar.gz"
       on-success: "create_archive"
       on-failure: "cleanup"
     -
