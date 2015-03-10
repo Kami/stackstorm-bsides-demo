@@ -101,6 +101,33 @@
         file_path: "/tmp/{{ archive_name }}"
         container_name: "{{ container_name }}"
         object_name: "{{ archive_name }}"
+      on-success: "enable_cdn_for_container"
+      on-failure: "cleanup"
+    -
+      name: "enable_cdn_for_container"
+      ref: "libcloud.enable_cdn_for_container"
+      params:
+        credentials: "rax_storage_kamislo_ord"
+        container_name: "{{ container_name }}"
+      on-success: "retrieve_archive_cdn_url"
+      on-failure: "cleanup"
+    -
+      name: "retrieve_archive_cdn_url"
+      ref: "libcloud.get_object_cdn_url"
+      params:
+        credentials: "rax_storage_kamislo_ord"
+        container_name: "{{ container_name }}"
+        object_name: "{{ archive_name }}"
+      publish:
+        archive_cdn_url: "{{ retrieve_archive_cdn_url.result.url }}"
+      on-success: "store_archive_cdn_url_in_datastore"
+      on-failure: "cleanup"
+    -
+      name: "store_archive_cdn_url_in_datastore"
+      ref: "st2.kv.set"
+      params:
+        key: "archive_cdn_url"
+        value: "{{ archive_cdn_url }}"
       on-success: "cleanup"
       on-failure: "cleanup"
     -
