@@ -1,12 +1,20 @@
 ---
   chain:
     -
+      name: "retrieve_archive_cdn_url_from_datastore"
+      ref: "st2.kv.get"
+      params:
+        key: "archive_cdn_url"
+      publish:
+        archive_cdn_url: "{{ retrieve_archive_cdn_url_from_datastore.result }}"
+      on-success: "notify_via_slack"
+    -
       name: "notify_via_slack"
       ref: "slack.post_message"
       params:
         channel: "{{ slack_channel }}"
         icon_emoji: ":warning:"
-        message: "Potential breach detected on server *{{ ip_address }}*\n\nServer IP: {{ ip_address }}\nForensic information: todo"
+        message: "Potential breach detected on server *{{ ip_address }}*\n\nServer IP: {{ ip_address }}\nForensic information: {{ archive_cdn_url }}"
       on-success: "notify_via_email"
     -
       name: "notify_via_email"
@@ -15,6 +23,6 @@
         sender: "notifications@kami.mailgun.org"
         recipient: "{{ email_address }}"
         subject: "Automatic notification of a potential breach on {{ ip_address }}"
-        text: "Potential breach detected on {{ ip_address }}.\n\nDetails:\n\nServer IP: {{ ip_address }}\nForensic information: todo"
+        text: "Potential breach detected on {{ ip_address }}.\n\nDetails:\n\nServer IP: {{ ip_address }}\nForensic information: {{ archive_cdn_url }}"
 
-  default: "notify_via_slack"
+  default: "retrieve_archive_cdn_url_from_datastore"
