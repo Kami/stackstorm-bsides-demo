@@ -5,6 +5,7 @@ Actions and workflows used in my StackStorm BSides Ljubljana 2015 presentation.
 Used packs:
 
 * core
+* st2
 * linux
 * libcloud
 * rackspace
